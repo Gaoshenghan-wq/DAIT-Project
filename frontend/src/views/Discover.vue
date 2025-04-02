@@ -10,12 +10,12 @@
     <div v-else class="row g-4">
       <div v-for="post in filteredPosts" :key="post.id" class="col-12 col-md-6 col-lg-4">
         <div class="card h-100" style="cursor: pointer" @click="router.push(`/system/detail/${post._id}`)">
-          <img :src="post.image" class="card-img-top" :alt="post.title">
+          <img :src="post.coverImage" class="card-img-top" :alt="post.title">
           <div class="card-body">
             <h5 class="card-title">{{ post.title }}</h5>
             <div class="d-flex align-items-center mt-2">
-              <img :src="post.userAvatar" class="rounded-circle me-2" width="30" height="30" :alt="post.userName">
-              <span class="text-muted">{{ post.userName }}</span>
+              <img :src="post.author.avatar" class="rounded-circle me-2" width="30" height="30" :alt="post.userName">
+              <span class="text-muted">{{ post.author.username }}</span>
             </div>
           </div>
         </div>
@@ -38,17 +38,12 @@ const props = defineProps({
   }
 })
 
-const allPosts = ref({
-  image: '',
-  title: '',
-  userAvatar: '',
-  userName: ''
-})
+const allPosts = ref({})
 
 const getBlog = async function () {
   loading.value = true // Set loading to true when starting fetch
   try {
-    const response = await fetch('/api/bluenote/allblog');
+    const response = await fetch('/api/bluenote/allPost');
     const json = await response.json();
     console.log(json)
 

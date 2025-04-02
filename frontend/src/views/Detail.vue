@@ -1,12 +1,12 @@
 <template>
   <div class="container py-4">
     <div class="card mb-4">
-      <img :src="post.image" class="card-img-top" :alt="post.title">
+      <img :src="post.coverImage" class="card-img-top" :alt="post.title">
       <div class="card-body">
         <h2 class="card-title">{{ post.title }}</h2>
         <div class="d-flex align-items-center mb-3">
-          <img :src="post.userAvatar" class="rounded-circle me-2" width="40" height="40" :alt="post.userName">
-          <span class="text-muted">{{ post.userName }}</span>
+          <img :src="post.author.avatar" class="rounded-circle me-2" width="40" height="40" :alt="post.userName">
+          <span class="text-muted">{{ post.author.username }}</span>
         </div>
         <p class="card-text">{{ post.content }}</p>
         <div class="d-flex align-items-center">
@@ -63,14 +63,7 @@ const isLiked = ref(false)
 const likes = ref(42)
 const newComment = ref('')
 
-const post = ref({
-  id: '',
-  title: '',
-  content: '',
-  image: '',
-  userName: '',
-  userAvatar: ''
-})
+const post = ref({})
 
 const fetchPostDetial = async function() {
   const response = await fetch('/api/bluenote/blog/'+route.params.id);
@@ -79,7 +72,6 @@ const fetchPostDetial = async function() {
   if (response.ok) {
     // set the booking
     post.value = data;
-    console.log(data)
   } else {
     alert(json.message);
   }
