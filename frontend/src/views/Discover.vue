@@ -2,7 +2,7 @@
   <div class="container py-4">
     <div class="row g-4">
       <div v-for="post in filteredPosts" :key="post.id" class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100" style="cursor: pointer" @click="router.push(`/detail/${post.id}`)">
+        <div class="card h-100" style="cursor: pointer" @click="router.push(`/detail/${post._id}`)">
           <img :src="post.image" class="card-img-top" :alt="post.title">
           <div class="card-body">
             <h5 class="card-title">{{ post.title }}</h5>
@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted} from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -30,7 +30,25 @@ const props = defineProps({
   }
 })
 
-const allPosts = ref([{ id: "", title: "", image: "", userName: "", userAvatar: "" }]);
+const allPosts = ref({
+  image: '',
+  title: '',
+  userAvatar:'',
+  userName:''
+})
+
+const getBlog = async function() {
+  const response = await fetch('/api/bluenote/allblog');
+  const json = await response.json();
+  console.log(json)
+
+  if (response.ok) {
+    // set the booking
+    allPosts.value = json;
+  } else {
+    alert(json.message);
+  }
+}
 
 const filteredPosts = computed(() => {
   if (!props.searchQuery) return allPosts.value
@@ -42,14 +60,8 @@ const filteredPosts = computed(() => {
   )
 })
 
-onMounted(async () => {
-
-const response = await fetch("https://api.npoint.io/aa54bdd858b0659348fb");
-
-if (response.ok) {
-  allPosts.value = await response.json()
-  console.log(allPosts.value)
-  allPosts.value = allPosts.value.concat(allPosts.value, allPosts.value, allPosts.value);
-}
-});
+onMounted(()=>{
+  console.log("onmounted set")
+  getBlog()
+})
 </script>
