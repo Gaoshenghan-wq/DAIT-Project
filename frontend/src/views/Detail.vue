@@ -63,7 +63,22 @@ const isLiked = ref(false)
 const likes = ref(42)
 const newComment = ref('')
 
-const post = ref({})
+const post = ref({
+  _id: '',
+  title: 'Loading...',
+  content: '',
+  image: '',
+  author: {
+    _id: '',
+    username: 'Unknown',
+    avatar: 'https://picsum.photos/100/100' // 默认头像
+  },
+  tags: [],
+  viewCount: 0,
+  likes: [],
+  createdAt: new Date(),
+  updatedAt: new Date()
+})
 
 const fetchPostDetial = async function() {
   const response = await fetch('/api/bluenote/blog/'+route.params.id);

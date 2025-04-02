@@ -68,7 +68,6 @@ const filteredPosts = computed(() => {
 })
 
 onMounted(() => {
-  console.log("onmounted set")
   getBlog()
 })
 </script>
