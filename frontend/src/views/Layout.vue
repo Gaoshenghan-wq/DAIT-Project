@@ -141,6 +141,8 @@ const handleLogout = () => {
 
 .nav-link:hover {
   opacity: 0.8;
+  background-color: rgba(0, 0, 0, 0.05);
+
 }
 
 .nav-link.text-primary {
