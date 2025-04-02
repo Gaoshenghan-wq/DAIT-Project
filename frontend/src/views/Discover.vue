@@ -2,7 +2,7 @@
   <div class="container py-4">
     <div class="row g-4">
       <div v-for="post in filteredPosts" :key="post.id" class="col-12 col-md-6 col-lg-4">
-        <div class="card h-100" style="cursor: pointer" @click="router.push(`/detail/${post._id}`)">
+        <div class="card h-100" style="cursor: pointer" @click="router.push(`/system/detail/${post._id}`)">
           <img :src="post.image" class="card-img-top" :alt="post.title">
           <div class="card-body">
             <h5 class="card-title">{{ post.title }}</h5>

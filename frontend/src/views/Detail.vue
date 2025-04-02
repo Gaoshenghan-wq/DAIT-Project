@@ -63,46 +63,32 @@ const isLiked = ref(false)
 const likes = ref(42)
 const newComment = ref('')
 
-const currentUser = ref({
-  name: 'Current User',
-  avatar: 'https://picsum.photos/seed/currentuser/100/100'
+const post = ref({
+  id: '',
+  title: '',
+  content: '',
+  image: '',
+  userName: '',
+  userAvatar: ''
 })
 
-// Mock posts data to match with Discover page
-const mockPosts = {
-  1: {
-    id: 1,
-    title: 'Beautiful Sunset',
-    content: 'A breathtaking view of the sun setting over the horizon, painting the sky in vibrant hues of orange and purple.',
-    image: 'https://picsum.photos/seed/1/800/600',
-    userName: 'John Doe',
-    userAvatar: 'https://picsum.photos/seed/user1/100/100'
-  },
-  2: {
-    id: 2,
-    title: 'City Lights',
-    content: 'The mesmerizing glow of city lights at night, creating a magical urban landscape that never sleeps.',
-    image: 'https://picsum.photos/seed/2/800/600',
-    userName: 'Jane Smith',
-    userAvatar: 'https://picsum.photos/seed/user2/100/100'
-  },
-  3: {
-    id: 3,
-    title: 'Mountain View',
-    content: 'Majestic mountains reaching towards the sky, their peaks covered in pristine snow and surrounded by clouds.',
-    image: 'https://picsum.photos/seed/3/800/600',
-    userName: 'Mike Johnson',
-    userAvatar: 'https://picsum.photos/seed/user3/100/100'
+const fetchPostDetial = async function() {
+  const response = await fetch('/api/bluenote/blog/'+route.params.id);
+  const data = await response.json();
+
+  if (response.ok) {
+    // set the booking
+    post.value = data;
+    console.log(data)
+  } else {
+    alert(json.message);
   }
 }
 
-const post = ref(mockPosts[route.params.id] || {
-  id: route.params.id,
-  title: 'Post not found',
-  content: 'This post does not exist.',
-  image: 'https://picsum.photos/seed/404/800/600',
-  userName: 'Unknown',
-  userAvatar: 'https://picsum.photos/seed/unknown/100/100'
+
+const currentUser = ref({
+  name: 'Current User',
+  avatar: 'https://picsum.photos/seed/currentuser/100/100'
 })
 
 const comments = ref([
@@ -139,4 +125,9 @@ const addComment = () => {
     newComment.value = ''
   }
 }
+
+onMounted(()=>{
+  console.log("onmounted set")
+  fetchPostDetial()
+})
 </script>
