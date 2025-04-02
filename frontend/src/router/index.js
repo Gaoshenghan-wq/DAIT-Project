@@ -47,6 +47,7 @@ const router = createRouter({
                 },
                 {
                     path: '',
+                    name: 'dis',
                     redirect: { name: 'Discover' }
                 },
                 {
