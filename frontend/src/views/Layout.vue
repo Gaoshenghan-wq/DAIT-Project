@@ -54,17 +54,17 @@ const handleLogout = () => {
         <div class="position-sticky pt-3">
           <ul class="nav flex-column">
             <li class="nav-item">
-              <a class="nav-link" :class="{ active: $route.path === '/discover' }" @click="router.push('/system/discover')">
+              <a class="nav-link" :class="{ 'text-primary': $route.path === '/system/discover' }" @click="router.push('/system/discover')">
                 <i class="bi bi-compass"></i> Discover
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" :class="{ active: $route.path === '/post' }" @click="router.push('/system/post')">
+              <a class="nav-link" :class="{ 'text-primary': $route.path === '/system/post' }" @click="router.push('/system/post')">
                 <i class="bi bi-plus-square"></i> Post
               </a>
             </li>
             <li class="nav-item" v-if="isAuthenticated">
-              <a class="nav-link" :class="{ active: $route.path === '/me' }" @click="router.push('/system/me')">
+              <a class="nav-link" :class="{ 'text-primary': $route.path === '/system/me' }" @click="router.push('/system/me')">
                 <i class="bi bi-person"></i> Me
               </a>
             </li>
@@ -92,19 +92,19 @@ const handleLogout = () => {
     <nav class="d-md-none fixed-bottom bg-white border-top">
       <div class="row text-center">
         <div class="col">
-          <a @click="router.push('/discover')" class="nav-link" :class="{ active: $route.path === '/discover' }">
+          <a @click="router.push('/system/discover')" class="nav-link" :class="{ 'text-primary': $route.path === '/system/discover' }">
             <i class="bi bi-compass"></i>
             <div>Discover</div>
           </a>
         </div>
         <div class="col">
-          <a @click="router.push('/post')" class="nav-link" :class="{ active: $route.path === '/post' }">
+          <a @click="router.push('/system/post')" class="nav-link" :class="{ 'text-primary': $route.path === '/system/post' }">
             <i class="bi bi-plus-square"></i>
             <div>Post</div>
           </a>
         </div>
         <div class="col" v-if="isAuthenticated">
-          <a @click="router.push('/me')" class="nav-link" :class="{ active: $route.path === '/me' }">
+          <a @click="router.push('/system/me')" class="nav-link" :class="{ 'text-primary': $route.path === '/system/me' }">
             <i class="bi bi-person"></i>
             <div>Me</div>
           </a>
@@ -134,17 +134,17 @@ const handleLogout = () => {
 }
 
 .nav-link {
-  color: #333;
+  color: #333 !important;
   padding: 0.5rem 1rem;
   cursor: pointer;
 }
 
 .nav-link:hover {
-  color: #0d6efd;
+  opacity: 0.8;
 }
 
-.nav-link.active {
-  color: #0d6efd;
+.nav-link.text-primary {
+  color: #0d6efd !important;
 }
 
 .nav-link i {
@@ -155,28 +155,5 @@ const handleLogout = () => {
   main {
     margin-bottom: 80px;
   }
-}
-
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1050;
-}
-
-.modal-dialog {
-  width: 100%;
-  max-width: 400px;
-  margin: 1.75rem auto;
-  background: white;
-  border-radius: 5px;
-  padding: 10px;
 }
 </style>
