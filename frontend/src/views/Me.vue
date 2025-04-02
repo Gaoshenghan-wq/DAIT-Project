@@ -12,10 +12,14 @@
 
     <!-- User Posts -->
     <h4 class="mb-4">My Posts</h4>
-    <div class="row g-4">
-      <div v-for="post in userPosts" :key="post.id" class="col-12 col-md-6 col-lg-4">
+    <div v-if="loading" class="text-center py-5">
+      <div class="spinner-border text-primary"></div>
+      <p class="mt-2">Loading posts...</p>
+    </div>
+    <div v-else class="row g-4">
+      <div v-for="post in userPosts" :key="post._id" class="col-12 col-md-6 col-lg-4">
         <div class="card h-100">
-          <img :src="post.image" class="card-img-top" :alt="post.title">
+          <img :src="post.coverImage" class="card-img-top" :alt="post.title">
           <div class="card-body">
             <h5 class="card-title">{{ post.title }}</h5>
             <p class="card-text text-truncate">{{ post.content }}</p>
@@ -24,11 +28,11 @@
                 <button class="btn btn-outline-primary me-2" @click="editPost(post)">
                   <i class="bi bi-pencil"></i> Edit
                 </button>
-                <button class="btn btn-outline-danger" @click="deletePost(post.id)">
+                <button class="btn btn-outline-danger" @click="deletePost(post._id)">
                   <i class="bi bi-trash"></i> Delete
                 </button>
               </div>
-              <small class="text-muted">{{ post.date }}</small>
+              <small class="text-muted">{{ formatDate(post.createdAt) }}</small>
             </div>
           </div>
         </div>
@@ -38,7 +42,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { jwtDecode } from "jwt-decode";
 const router = useRouter()
@@ -50,25 +54,31 @@ const user = ref({
   name: decoded.first_name,
   nickname: decoded.last_name,
   email: decoded.email,
-  avatar: 'https://picsum.photos/seed/user1/200/200'
+  avatar: decoded.avatar
 })
 
-const userPosts = ref([
-  {
-    id: 1,
-    title: 'My Adventure',
-    content: 'An amazing journey through the mountains...',
-    image: 'https://picsum.photos/seed/post1/800/600',
-    date: '2 days ago'
-  },
-  {
-    id: 2,
-    title: 'City Exploration',
-    content: 'Discovering hidden gems in the city...',
-    image: 'https://picsum.photos/seed/post2/800/600',
-    date: '1 week ago'
+const userPosts = ref([])
+const loading = ref(true)
+
+const getMyPosts = async () => {
+  try {
+    const response = await fetch('/api/bluenote/myPosts', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    const json = await response.json();
+    if (response.ok) {
+      userPosts.value = json;
+    } else {
+      alert(json.message);
+    }
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+  } finally {
+    loading.value = false;
   }
-])
+}
 
 const editPost = (post) => {
   // Here you would typically navigate to an edit page or show an edit modal
@@ -77,7 +87,27 @@ const editPost = (post) => {
 
 const deletePost = (postId) => {
   if (confirm('Are you sure you want to delete this post?')) {
-    userPosts.value = userPosts.value.filter(post => post.id !== postId)
+    userPosts.value = userPosts.value.filter(post => post._id !== postId)
   }
 }
+
+const formatDate = (date) => {
+  const now = new Date();
+  const postDate = new Date(date);
+  const diffTime = Math.abs(now - postDate);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) {
+    return 'Today';
+  } else if (diffDays === 1) {
+    return 'Yesterday';
+  } else if (diffDays < 7) {
+    return `${diffDays} days ago`;
+  } else {
+    return postDate.toLocaleDateString();
+  }
+}
+
+onMounted(() => {
+  getMyPosts();
+})
 </script>

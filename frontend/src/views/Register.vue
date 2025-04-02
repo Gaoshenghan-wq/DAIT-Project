@@ -98,7 +98,8 @@
               last_name: this.last_name,
               email: this.email,
               gender: this.gender,
-              password: this.password
+              password: this.password,
+              avatar:`https://picsum.photos/100/100?random=${Math.floor(Math.random() * 100) + 1}`
             })
           });
   
