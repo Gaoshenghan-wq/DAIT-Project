@@ -72,6 +72,47 @@ router.get('/blog/:id', async function (req, res) {
     }
 });
 
+/* delete blog*/
+const fs = require('fs');
+const path = require('path');
+
+router.delete('/blog/:id', verifyToken, async (req, res) => {
+    const db = await connectToDB();
+    try {
+        const post = await db.collection("blogs").findOne({ 
+            _id: new ObjectId(req.params.id),
+            "author._id": new ObjectId(req.user._id)
+        });
+        
+        if (!post) {
+            return res.status(404).json({ message: "Post not found or unauthorized" });
+        }
+        
+        const result = await db.collection("blogs").deleteOne({ 
+            _id: new ObjectId(req.params.id) 
+        });
+        
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: "Post not found" });
+        }
+        
+        if (post.coverImage && !post.coverImage.startsWith('http')) {
+            const imagePath = path.join(__dirname, '../uploads', post.coverImage);
+            
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+            }
+        }
+        
+        res.status(200).json({ message: "Post deleted successfully" });
+    } catch (err) {
+        console.error("Error deleting post:", err);
+        res.status(500).json({ message: err.message });
+    } finally {
+        await db.client.close();
+    }
+});
+
 router.get('/myPosts', verifyToken, async (req, res) => {
     const userId = req.user._id;
     const db = await connectToDB();

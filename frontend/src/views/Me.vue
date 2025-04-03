@@ -45,6 +45,8 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { jwtDecode } from "jwt-decode";
+import Swal from 'sweetalert2';
+
 const router = useRouter()
 
 const decoded = jwtDecode(localStorage.getItem('token'));
@@ -85,11 +87,51 @@ const editPost = (post) => {
   console.log('Editing post:', post)
 }
 
-const deletePost = (postId) => {
-  if (confirm('Are you sure you want to delete this post?')) {
-    userPosts.value = userPosts.value.filter(post => post._id !== postId)
+const deletePost = async (postId) => {
+  const result = await Swal.fire({
+    title: 'Confirm Delete',
+    text: "Are you sure you want to delete this blog?",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Confirm',
+    cancelButtonText: 'Cancel'
+  });
+
+  if (result.isConfirmed) {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/bluenote/blog/${postId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Fail to delete');
+      }
+      
+      await Swal.fire({
+        icon: 'success',
+        title: 'Done',
+        text: 'Blog deleted',
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+      router.go(0);
+      
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'error',
+        text: error.message
+      });
+    }
   }
-}
+};
 
 const formatDate = (date) => {
   const now = new Date();
