@@ -36,7 +36,7 @@
                 <i class="bi bi-trash"></i> Delete
               </button>
             </div>
-            <small class="text-muted">{{ formatDate(post.updateAt) }}</small>
+            <small class="text-muted">{{ formatDate(post.updatedAt) }}</small>
           </div>
 
         </div>
@@ -142,9 +142,9 @@ const formatDate = (date) => {
   const postDate = new Date(date);
   const diffTime = Math.abs(now - postDate);
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  if (diffDays === 0) {
+  if (diffDays === 1) {
     return 'Today';
-  } else if (diffDays === 1) {
+  } else if (diffDays === 2) {
     return 'Yesterday';
   } else if (diffDays < 7) {
     return `${diffDays} days ago`;
