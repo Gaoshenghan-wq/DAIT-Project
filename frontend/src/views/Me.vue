@@ -19,23 +19,28 @@
     <div v-else class="row g-4">
       <div v-for="post in userPosts" :key="post._id" class="col-12 col-md-6 col-lg-4">
         <div class="card h-100">
-          <img :src="post.coverImage" class="card-img-top" :alt="post.title">
-          <div class="card-body">
-            <h5 class="card-title">{{ post.title }}</h5>
-            <p class="card-text text-truncate">{{ post.content }}</p>
-            <div class="d-flex justify-content-between align-items-center mt-3">
-              <div>
-                <button class="btn btn-outline-primary me-2" @click="editPost(post)">
-                  <i class="bi bi-pencil"></i> Edit
-                </button>
-                <button class="btn btn-outline-danger" @click="deletePost(post._id)">
-                  <i class="bi bi-trash"></i> Delete
-                </button>
-              </div>
-              <small class="text-muted">{{ formatDate(post.createdAt) }}</small>
+          <div @click="router.push(`/system/detail/${post._id}`)">
+            <img :src="post.coverImage" class="card-img-top" :alt="post.title">
+            <div class="card-body">
+              <h5 class="card-title">{{ post.title }}</h5>
+              <p class="card-text text-truncate">{{ post.content }}</p>
             </div>
           </div>
+
+          <div class="d-flex justify-content-between align-items-center m-1">
+            <div>
+              <button class="btn btn-outline-primary me-2" @click="editPost(post)">
+                <i class="bi bi-pencil"></i> Edit
+              </button>
+              <button class="btn btn-outline-danger" @click="deletePost(post._id)">
+                <i class="bi bi-trash"></i> Delete
+              </button>
+            </div>
+            <small class="text-muted">{{ formatDate(post.updateAt) }}</small>
+          </div>
+
         </div>
+
       </div>
     </div>
   </div>
@@ -83,8 +88,7 @@ const getMyPosts = async () => {
 }
 
 const editPost = (post) => {
-  // Here you would typically navigate to an edit page or show an edit modal
-  console.log('Editing post:', post)
+  router.push(`/system/edit/${post._id}`);
 }
 
 const deletePost = async (postId) => {
@@ -108,11 +112,11 @@ const deletePost = async (postId) => {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) {
         throw new Error('Fail to delete');
       }
-      
+
       await Swal.fire({
         icon: 'success',
         title: 'Done',
@@ -122,7 +126,7 @@ const deletePost = async (postId) => {
       });
 
       router.go(0);
-      
+
     } catch (error) {
       Swal.fire({
         icon: 'error',

@@ -169,5 +169,60 @@ router.post('/newpost', verifyToken, upload.single('image'), async (req, res) =>
     }
 });
 
+// update blog
+router.put('/blog/:id', verifyToken, upload.single('image'), async (req, res) => {
+    const { title, content } = req.body;
+    const user = req.user;
+    const postId = req.params.id;
+    const newImage = req.file ? req.file.filename : null;
+    
+    const db = await connectToDB();
+    try {
+        const existingPost = await db.collection("blogs").findOne({ 
+            _id: new ObjectId(postId),
+            "author._id": new ObjectId(user._id)
+        });
+        
+        if (!existingPost) {
+            return res.status(404).json({ message: "Post not found or unauthorized" });
+        }
+        
+        const updateData = {
+            title,
+            content,
+            updatedAt: new Date()
+        };
+        
+        if (newImage) {
+            updateData.coverImage = newImage;
+            
+            if (existingPost.coverImage && !existingPost.coverImage.startsWith('http')) {
+                const oldImagePath = path.join(__dirname, '../uploads', existingPost.coverImage);
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath);
+                }
+            }
+        }
+        
+        const result = await db.collection("blogs").updateOne(
+            { _id: new ObjectId(postId) },
+            { $set: updateData }
+        );
+        
+        if (result.modifiedCount === 0) {
+            return res.status(400).json({ message: "No changes made to the post" });
+        }
+        
+        const updatedPost = await db.collection("blogs").findOne({ _id: new ObjectId(postId) });
+        res.status(200).json(processImagePath(updatedPost));
+        
+    } catch (err) {
+        console.error("Error updating post:", err);
+        res.status(500).json({ message: err.message });
+    } finally {
+        await db.client.close();
+    }
+});
+
 
 module.exports = router;
