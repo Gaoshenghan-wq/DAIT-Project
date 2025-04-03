@@ -57,17 +57,17 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-
+import { jwtDecode } from "jwt-decode";
 const route = useRoute()
 const isLiked = ref(false)
-const likes = ref(42)
+const likes = ref(0)
 const newComment = ref('')
 
 const post = ref({
   _id: '',
   title: 'Loading...',
   content: '',
-  image: '',
+  coverImage: '',
   author: {
     _id: '',
     username: 'Unknown',
@@ -80,61 +80,86 @@ const post = ref({
   updatedAt: new Date()
 })
 
+
+const token = localStorage.getItem("token");
+const decoded = jwtDecode(token);
+
+const currentUser = ref({
+  name: `${decoded.first_name}`,
+  avatar: `${decoded.avatar}`,
+  email: `${decoded.email}`
+})
+
 const fetchPostDetial = async function() {
   const response = await fetch('/api/bluenote/blog/'+route.params.id);
   const data = await response.json();
-
+  console.log(data, decoded , data.likes.indexOf(decoded.email))
   if (response.ok) {
-    // set the booking
+    // set the post
+    isLiked.value = data.likes.indexOf(decoded.email) !== -1
     post.value = data;
+    likes.value = data.likes.length;
   } else {
-    alert(json.message);
+    alert(data.message);
   }
 }
 
 
-const currentUser = ref({
-  name: 'Current User',
-  avatar: 'https://picsum.photos/seed/currentuser/100/100'
-})
+const comments = ref([])
 
-const comments = ref([
-  {
-    id: 1,
-    userName: 'Alice Johnson',
-    userAvatar: 'https://picsum.photos/seed/user2/100/100',
-    content: 'This is absolutely stunning! Love the composition.',
-    date: '2 hours ago'
-  },
-  {
-    id: 2,
-    userName: 'Bob Wilson',
-    userAvatar: 'https://picsum.photos/seed/user3/100/100',
-    content: 'Great shot! What camera did you use?',
-    date: '1 hour ago'
+const fetchComments = async () => {
+  const response = await fetch(`/api/bluenote/blog/${route.params.id}/comments`);
+  const data = await response.json();
+  if (response.ok) {
+    comments.value = data;
+  } else {
+    alert(data.message);
   }
-])
-
-const toggleLike = () => {
-  isLiked.value = !isLiked.value
-  likes.value += isLiked.value ? 1 : -1
 }
 
-const addComment = () => {
+const toggleLike = async () => {
+  const email = currentUser.value.email;
+  const url = `/api/bluenote/blog/${route.params.id}/like?email=${email}`;
+  const method = isLiked.value ? 'DELETE' : 'POST';
+  const response = await fetch(url, {
+    method: method
+  });
+  const data = await response.json();
+  if (response.ok) {
+    isLiked.value = !isLiked.value;
+    likes.value = data.post.likes.length;
+  } else {
+    alert(data.message);
+  }
+}
+
+const addComment = async () => {
   if (newComment.value.trim()) {
-    comments.value.unshift({
-      id: comments.value.length + 1,
-      userName: currentUser.value.name,
-      userAvatar: currentUser.value.avatar,
-      content: newComment.value,
-      date: 'Just now'
-    })
-    newComment.value = ''
+    const url = `/api/bluenote/blog/${route.params.id}/comments`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userName: currentUser.value.name,
+        userAvatar: currentUser.value.avatar,
+        content: newComment.value
+      })
+    });
+    const data = await response.json();
+    if (response.ok) {
+      comments.value.unshift(data);
+      newComment.value = '';
+    } else {
+      alert(data.message);
+    }
   }
 }
 
 onMounted(()=>{
   console.log("onmounted set")
   fetchPostDetial()
+  fetchComments()
 })
-</script>
+</script>    

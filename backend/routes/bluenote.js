@@ -225,4 +225,83 @@ router.put('/blog/:id', verifyToken, upload.single('image'), async (req, res) =>
 });
 
 
+// comment and like
+
+router.get('/blog/:id/comments', async function (req, res) {
+    const db = await connectToDB();
+    try {
+        const result = await db.collection("postcomments").find({ postId: req.params.id }).toArray();
+        res.json(result);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    } finally {
+        await db.client.close();
+    }
+});
+
+
+router.post('/blog/:id/comments', async function (req, res) {
+    const db = await connectToDB();
+    try {
+        const newComment = {
+            postId: req.params.id,
+            userName: req.body.userName,
+            userAvatar: req.body.userAvatar,
+            content: req.body.content,
+            date: new Date()
+        };
+        const result = await db.collection("postcomments").insertOne(newComment);
+        newComment._id = result.insertedId;
+        res.json(newComment);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    } finally {
+        await db.client.close();
+    }
+});
+
+
+router.post('/blog/:id/like', async function (req, res) {
+    const db = await connectToDB();
+    try {
+        const email = req.query.email;
+        const result = await db.collection("blogs").updateOne(
+            { _id: new ObjectId(req.params.id) },
+            { $addToSet: { likes: email } }
+        );
+        if (result.modifiedCount === 1) {
+            const updatedPost = await db.collection("blogs").findOne({ _id: new ObjectId(req.params.id) });
+            res.json({ post: updatedPost });
+        } else {
+            res.status(404).json({ message: "post not found" });
+        }
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    } finally {
+        await db.client.close();
+    }
+});
+
+router.delete('/blog/:id/like', async function (req, res) {
+    const db = await connectToDB();
+    try {
+        const email = req.query.email;
+        const result = await db.collection("blogs").updateOne(
+            { _id: new ObjectId(req.params.id) },
+            { $pull: { likes: email } }
+        );
+        if (result.modifiedCount === 1) {
+            const updatedPost = await db.collection("blogs").findOne({ _id: new ObjectId(req.params.id) });
+            res.json({ post: updatedPost });
+        } else {
+            res.status(404).json({ message: "post not found" });
+        }
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    } finally {
+        await db.client.close();
+    }
+});
+
+
 module.exports = router;
