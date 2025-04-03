@@ -33,17 +33,19 @@ const verifyToken = (req, res, next) => {
     }
 };
 
+function processImagePath(post) {
+    if (post.coverImage && !post.coverImage.startsWith('https')) {
+        post.coverImage = `/api/uploads/${post.coverImage}`;
+    }
+    return post;
+} 
+
 /* Display all blog */
 router.get('/allPost', async function (req, res) {
     const db = await connectToDB();
     try {
         let results = await db.collection("blogs").find().toArray();
-        results = results.map(post => {
-            if (post.coverImage && !post.coverImage.startsWith('https')) {
-                post.coverImage = `/api/uploads/${post.coverImage}`;
-            }
-            return post;
-        });
+        results = results.map(processImagePath);
         res.status(200).json(results);
     } catch (err) {
         res.status(400).json({ message: err.message });
@@ -58,6 +60,7 @@ router.get('/blog/:id', async function (req, res) {
     try {
         let result = await db.collection("blogs").findOne({ _id: new ObjectId(req.params.id) });
         if (result) {
+            result = processImagePath(result);
             res.json(result);
         } else {
             res.status(404).json({ message: "post not found" });

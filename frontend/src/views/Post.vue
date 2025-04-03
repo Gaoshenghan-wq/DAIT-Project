@@ -28,11 +28,14 @@
 
 <script setup>
 import { ref } from 'vue';
+import Swal from 'sweetalert2';
+import { useRouter } from 'vue-router';
 
 const imagePreview = ref('');
 const title = ref('');
 const content = ref('');
 const imageFile = ref(null);
+const router = useRouter();
 
 const handleImageChange = (event) => {
   const file = event.target.files[0];
@@ -66,7 +69,14 @@ const handleSubmit = async () => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const result = await response.json();
-    console.log('Post created successfully:', result);
+    await Swal.fire({
+      icon: "success",
+      text: "Post created successfully!",
+      timer: 1500, // 1.5秒后自动关闭
+      showConfirmButton: false
+    });
+    router.push('/system/discover');
+
     // 清空表单
     title.value = '';
     content.value = '';
