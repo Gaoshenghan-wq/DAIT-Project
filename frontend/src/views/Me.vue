@@ -1,5 +1,5 @@
 <template>
-  <div class="container py-4">
+  <div class="container py-4" >
     <!-- User Profile Card -->
     <div class="card mb-4">
       <div class="card-body text-center">
@@ -15,6 +15,9 @@
     <div v-if="loading" class="text-center py-5">
       <div class="spinner-border text-primary"></div>
       <p class="mt-2">Loading posts...</p>
+    </div>
+    <div v-else-if="userPosts.length === 0" class="text-center py-5">
+      <p class="text-muted">No posts yet. Start writing your first blog!</p>
     </div>
     <div v-else class="row g-4">
       <div v-for="post in userPosts" :key="post._id" class="col-12 col-md-6 col-lg-4">

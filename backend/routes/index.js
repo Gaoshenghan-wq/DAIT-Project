@@ -56,7 +56,8 @@ router.post('/register', async function (req, res, next) {
       email: req.body.email,
       gender: req.body.gender,
       ip_address: req.ip, 
-      password: req.body.password
+      password: req.body.password,
+      avatar: "https://picsum.photos/200/200"
     };
 
     const result = await db.collection("users").insertOne(newUser);

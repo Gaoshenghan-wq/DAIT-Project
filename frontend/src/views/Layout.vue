@@ -12,8 +12,6 @@ window.addEventListener('resize', () => {
   showSidebar.value = window.innerWidth >= 768;
 });
 
-
-
 const handleLogout = () => {
   localStorage.setItem("token", null);
   router.push('/login');
