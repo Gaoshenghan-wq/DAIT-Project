@@ -8,7 +8,7 @@
 
     <!-- Rest of your existing template remains unchanged -->
     <div v-else class="row g-4">
-      <div v-for="post in filteredPosts" :key="post.id" class="col-12 col-md-6 col-lg-4">
+      <div v-for="post in posts" :key="post.id" class="col-12 col-md-6 col-lg-4">
         <div class="card h-100" style="cursor: pointer" @click="router.push(`/system/detail/${post._id}`)">
           <img :src="post.coverImage" class="card-img-top" :alt="post.title">
           <div class="card-body">
@@ -21,15 +21,37 @@
         </div>
       </div>
     </div>
+    <nav v-if="totalPages > 1" aria-label="Page navigation example">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" :class="{ disabled: currentPage === 1 }">
+          <a class="page-link" @click="prevPage" tabindex="-1" aria-disabled="true">Previous</a>
+        </li>
+        <li
+          v-for="page in totalPages"
+          :key="page"
+          class="page-item"
+          :class="{ active: page === currentPage }"
+        >
+          <a class="page-link" @click="goToPage(page)">{{ page }}</a>
+        </li>
+        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+          <a class="page-link" @click="nextPage">Next</a>
+        </li>
+      </ul>
+    </nav>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const loading = ref(false) // Added loading ref
+const loading = ref(false)
+const currentPage = ref(1)
+const itemsPerPage = 10
+const posts = ref([])
+const totalPages = ref(0)
 
 const props = defineProps({
   searchQuery: {
@@ -38,33 +60,46 @@ const props = defineProps({
   }
 })
 
-const allPosts = ref({})
-
-const getBlog = async function () {
-  loading.value = true // Set loading to true when starting fetch
+const getBlog = async () => {
+  loading.value = true
   try {
-    const response = await fetch('/api/bluenote/allPost');
-    const json = await response.json();
-    console.log(json)
-
+    const response = await fetch(`/api/bluenote/allPost?page=${currentPage.value}&limit=${itemsPerPage}&search=${props.searchQuery}`)
+    const json = await response.json()
     if (response.ok) {
-      allPosts.value = json;
+      posts.value = json.data
+      totalPages.value = json.totalPages
     } else {
-      alert(json.message);
+      alert(json.message)
     }
+  } catch (error) {
+    console.error('Error fetching posts:', error)
   } finally {
-    loading.value = false // Set loading to false when done
+    loading.value = false
   }
 }
 
-const filteredPosts = computed(() => {
-  if (!props.searchQuery) return allPosts.value
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--
+    getBlog()
+  }
+}
 
-  const query = props.searchQuery.toLowerCase()
-  return allPosts.value.filter(post =>
-    post.title.toLowerCase().includes(query) ||
-    post.userName.toLowerCase().includes(query)
-  )
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++
+    getBlog()
+  }
+}
+
+const goToPage = (page) => {
+  currentPage.value = page
+  getBlog()
+}
+
+watch(() => props.searchQuery, () => {
+  currentPage.value = 1
+  getBlog()
 })
 
 onMounted(() => {

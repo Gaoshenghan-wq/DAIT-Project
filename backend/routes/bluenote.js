@@ -44,15 +44,36 @@ function processImagePath(post) {
 router.get('/allPost', async function (req, res) {
     const db = await connectToDB();
     try {
-        let results = await db.collection("blogs").find().toArray();
-        results = results.map(processImagePath);
-        res.status(200).json(results);
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+
+        const skip = (page - 1) * limit;
+
+        const query = {};
+        if (search) {
+            query.$or = [
+                { title: { $regex: search, $options: 'i' } },
+                { userName: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const results = await db.collection("blogs").find(query).skip(skip).limit(limit).toArray();
+        const totalCount = await db.collection("blogs").countDocuments(query);
+        const totalPages = Math.ceil(totalCount / limit);
+
+        results.forEach(processImagePath);
+
+        res.status(200).json({
+            data: results,
+            totalPages
+        });
     } catch (err) {
         res.status(400).json({ message: err.message });
     } finally {
         await db.client.close();
     }
-});
+});   
 
 /* Retrieve a single blog */
 router.get('/blog/:id', async function (req, res) {
