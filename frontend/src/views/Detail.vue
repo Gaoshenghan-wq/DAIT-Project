@@ -11,13 +11,23 @@
         <p class="card-text">{{ post.content }}</p>
         <div class="d-flex align-items-center">
           <button class="btn btn-outline-primary me-2" @click="toggleLike">
-            <i class="bi" :class="isLiked ? 'bi-heart-fill' : 'bi-heart'"></i>
+            <i class="bi" :class="isLiked? 'bi-heart-fill' : 'bi-heart'"></i>
             {{ likes }}
           </button>
           <span class="ms-3">
             <i class="bi bi-chat-dots"></i>
             {{ comments.length }} comments
           </span>
+        </div>
+        <button class="btn btn-outline-secondary mt-3" @click="extractSummary">Extract Summary</button>
+        <div v-if="summary" class="mt-3">
+          <h5>Summary:</h5>
+          <div v-if="summaryEntities.length > 0">
+            <h5>Entities:</h5>
+            <div v-for="entity in summaryEntities" :key="entity.dataSourceEntityId">
+              <a :href="entity.url" target="_blank">{{ entity.name }}</a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -62,6 +72,8 @@ const route = useRoute()
 const isLiked = ref(false)
 const likes = ref(0)
 const newComment = ref('')
+const summary = ref('') 
+const summaryEntities = ref([]) // 新增，用于存储实体信息
 
 const post = ref({
   _id: '',
@@ -71,7 +83,7 @@ const post = ref({
   author: {
     _id: '',
     username: 'Unknown',
-    avatar: 'https://picsum.photos/100/100' // 默认头像
+    avatar: 'https://picsum.photos/100/100' 
   },
   tags: [],
   viewCount: 0,
@@ -79,7 +91,6 @@ const post = ref({
   createdAt: new Date(),
   updatedAt: new Date()
 })
-
 
 const token = localStorage.getItem("token");
 const decoded = jwtDecode(token);
@@ -104,7 +115,6 @@ const fetchPostDetial = async function() {
   }
 }
 
-
 const comments = ref([])
 
 const fetchComments = async () => {
@@ -120,7 +130,7 @@ const fetchComments = async () => {
 const toggleLike = async () => {
   const email = currentUser.value.email;
   const url = `/api/bluenote/blog/${route.params.id}/like?email=${email}`;
-  const method = isLiked.value ? 'DELETE' : 'POST';
+  const method = isLiked.value? 'DELETE' : 'POST';
   const response = await fetch(url, {
     method: method
   });
@@ -157,9 +167,29 @@ const addComment = async () => {
   }
 }
 
-onMounted(()=>{
+const extractSummary = async () => {
+  const response = await fetch(`/api/bluenote/blog/${route.params.id}/summary`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      content: post.value.content
+    })
+  });
+  const data = await response.json();
+  console.log(data)
+  if (response.ok) {
+    summary.value = data.onlySuccessful; 
+    summaryEntities.value = data.onlySuccessful[0].entities;
+  } else {
+    alert(data.message);
+  }
+}
+
+onMounted(() => {
   console.log("onmounted set")
   fetchPostDetial()
   fetchComments()
 })
-</script>    
+</script>

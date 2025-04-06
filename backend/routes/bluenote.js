@@ -3,8 +3,10 @@ var router = express.Router();
 const multer = require('multer');
 const jwt = require('jsonwebtoken');
 const { connectToDB, ObjectId} = require("../utils/db");
+const { TextAnalysisClient, AzureKeyCredential } = require("@azure/ai-language-text");
 
-// 配置 multer
+const client = new TextAnalysisClient("https://hkbugsh.cognitiveservices.azure.com/", new AzureKeyCredential("74qLc0gswWlzWI1JsuGbr981YVBNfQm2ae7Oep6aQdiYqcCsb05qJQQJ99BCACqBBLyXJ3w3AAAaACOGEWvV"));
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads/');
@@ -324,5 +326,24 @@ router.delete('/blog/:id/like', async function (req, res) {
     }
 });
 
+router.post('/blog/:id/summary', async function (req, res) {
+    const db = await connectToDB();
+    try {
+      const { content } = req.body;
+      console.log(content)
+      const textList = content.split(".")
+      console.log(client)
+      const results = await client.analyze("EntityLinking", textList);
+
+      const onlySuccessful = results.filter((result) => result.error === undefined);
+      
+     
+      res.json({ onlySuccessful }); // 返回摘要内容
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    } finally {
+      await db.client.close();
+    }
+  });
 
 module.exports = router;
