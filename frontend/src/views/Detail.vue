@@ -54,12 +54,16 @@
 
         <!-- Comments List -->
         <div class="comments-list">
-          <div v-for="comment in comments" :key="comment.id" class="d-flex mb-3">
+          <div v-for="(comment, index) in comments" :key="comment.id" class="d-flex mb-3">
             <img :src="comment.userAvatar" class="rounded-circle me-2" width="32" height="32" :alt="comment.userName">
             <div>
               <h6 class="mb-1">{{ comment.userName }}</h6>
-              <p class="mb-1">{{ comment.content }}</p>
+              <p class="mb-1" v-if="!editMode[index]">{{ comment.content }}</p>
+              <input type="text" class="form-control" v-if="editMode[index]" v-model="comments[index].content">
               <small class="text-muted">{{ comment.date }}</small>
+              <button class="btn btn-sm btn-outline-primary me-1" v-if="comment.userName == currentUser.name && !editMode[index]" @click="startEdit(index)">Edit</button>
+              <button class="btn btn-sm btn-outline-primary me-1" v-if="comment.userName == currentUser.name && editMode[index]" @click="saveEdit(index)">Save</button>
+              <button class="btn btn-sm btn-outline-danger" v-if="comment.userName == currentUser.name" @click="deleteComment(comment._id)">Delete</button>
             </div>
           </div>
         </div>
@@ -78,6 +82,7 @@ const likes = ref(0)
 const newComment = ref('')
 const summary = ref('')
 const summaryEntities = ref([]) // 新增，用于存储实体信息
+const editMode = ref([]) // 新增，用于跟踪编辑状态
 
 const post = ref({
   _id: '',
@@ -133,6 +138,7 @@ const fetchComments = async () => {
   const data = await response.json();
   if (response.ok) {
     comments.value = data;
+    editMode.value = new Array(comments.value.length).fill(false);
   } else {
     alert(data.message);
   }
@@ -171,6 +177,7 @@ const addComment = async () => {
     const data = await response.json();
     if (response.ok) {
       comments.value.unshift(data);
+      editMode.value.unshift(false);
       newComment.value = '';
     } else {
       alert(data.message);
@@ -193,6 +200,43 @@ const extractSummary = async () => {
   if (response.ok) {
     summary.value = data.onlySuccessful;
     summaryEntities.value = data.onlySuccessful[0].entities;
+  } else {
+    alert(data.message);
+  }
+}
+
+const startEdit = (index) => {
+  editMode.value[index] = true;
+}
+
+const saveEdit = async (index) => {
+  const commentId = comments.value[index]._id;
+  const url = `/api/bluenote/blog/${route.params.id}/comments/${commentId}`;
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      content: comments.value[index].content
+    })
+  });
+  const data = await response.json();
+  if (response.ok) {
+    editMode.value[index] = false;
+  } else {
+    alert(data.message);
+  }
+}
+
+const deleteComment = async (commentId) => {
+  const url = `/api/bluenote/blog/${route.params.id}/comments/${commentId}`;
+  const response = await fetch(url, {
+    method: 'DELETE'
+  });
+  const data = await response.json();
+  if (response.ok) {
+    comments.value = comments.value.filter(comment => comment._id !== commentId);
   } else {
     alert(data.message);
   }

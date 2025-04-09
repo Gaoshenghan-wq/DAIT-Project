@@ -284,6 +284,48 @@ router.post('/blog/:id/comments', async function (req, res) {
 });
 
 
+router.put('/blog/:id/comments/:commentId', async function (req, res) {
+    const db = await connectToDB();
+    try {
+        const { commentId, id } = req.params;
+        const { content } = req.body;
+        console.log(commentId)
+        const result = await db.collection("postcomments").updateOne(
+            { _id: new ObjectId(commentId), postId: id }, 
+            { $set: { content } }
+        );
+        if (result.modifiedCount === 1) {
+            const updatedComment = await db.collection("postcomments").findOne({ _id: new ObjectId(commentId) });
+            res.json(updatedComment);
+        } else {
+            res.status(404).json({ message: 'Comment not found' });
+        }
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    } finally {
+        await db.client.close();
+    }
+});
+
+
+router.delete('/blog/:id/comments/:commentId', async function (req, res) {
+    const db = await connectToDB();
+    try {
+        const { commentId } = req.params;
+        const result = await db.collection("postcomments").deleteOne({ _id: new ObjectId(commentId), });
+        if (result.deletedCount === 1) {
+            res.json({ message: 'Comment deleted successfully' });
+        } else {
+            res.status(404).json({ message: 'Comment not found' });
+        }
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    } finally {
+        await db.client.close();
+    }
+});
+
+
 router.post('/blog/:id/like', async function (req, res) {
     const db = await connectToDB();
     try {
