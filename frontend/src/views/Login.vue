@@ -114,7 +114,7 @@ body {
 }
 
 .login-image {
-  background-image: url("https://picsum.photos/600/800");
+  background-image: url("liamge.png");
   background-size: cover;
   background-position: center;
   min-height: 400px;
