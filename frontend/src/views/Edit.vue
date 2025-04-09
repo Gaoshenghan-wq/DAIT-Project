@@ -45,6 +45,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+// import sweet alter
 import Swal from 'sweetalert2';
 
 

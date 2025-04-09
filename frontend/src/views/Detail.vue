@@ -81,8 +81,8 @@ const isLiked = ref(false)
 const likes = ref(0)
 const newComment = ref('')
 const summary = ref('')
-const summaryEntities = ref([]) // 新增，用于存储实体信息
-const editMode = ref([]) // 新增，用于跟踪编辑状态
+const summaryEntities = ref([])
+const editMode = ref([])
 
 const post = ref({
   _id: '',
