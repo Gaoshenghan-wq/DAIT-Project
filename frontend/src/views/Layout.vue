@@ -24,7 +24,7 @@ const handleLogout = () => {
     <div class="container-fluid">
       <!-- Logo -->
       <a class="navbar-brand ms-5" href="#" @click="router.push('/system/discover')">
-        <img src="/logo.png" alt="Logo" width="90" height="30">
+        <img src="/logo.png" alt="Logo" width="90" height="40">
       </a>
 
       <!-- Search Bar -->
