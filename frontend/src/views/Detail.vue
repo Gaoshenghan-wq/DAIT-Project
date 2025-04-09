@@ -1,6 +1,10 @@
 <template>
   <div class="container py-4">
-    <div class="card mb-4">
+    <div v-if="loading" class="text-center py-5">
+      <div class="spinner-border text-primary"></div>
+      <p class="mt-2">Loading posts...</p>
+    </div>
+    <div v-else class="card mb-4">
       <img :src="post.coverImage" class="card-img-top" :alt="post.title">
       <div class="card-body">
         <h2 class="card-title">{{ post.title }}</h2>
@@ -11,7 +15,7 @@
         <p class="card-text">{{ post.content }}</p>
         <div class="d-flex align-items-center">
           <button class="btn btn-outline-primary me-2" @click="toggleLike">
-            <i class="bi" :class="isLiked? 'bi-heart-fill' : 'bi-heart'"></i>
+            <i class="bi" :class="isLiked ? 'bi-heart-fill' : 'bi-heart'"></i>
             {{ likes }}
           </button>
           <span class="ms-3">
@@ -36,7 +40,7 @@
     <div class="card">
       <div class="card-body">
         <h4 class="card-title mb-4">Comments</h4>
-        
+
         <!-- New Comment Form -->
         <div class="d-flex mb-4">
           <img :src="currentUser.avatar" class="rounded-circle me-2" width="40" height="40" :alt="currentUser.name">
@@ -72,7 +76,7 @@ const route = useRoute()
 const isLiked = ref(false)
 const likes = ref(0)
 const newComment = ref('')
-const summary = ref('') 
+const summary = ref('')
 const summaryEntities = ref([]) // 新增，用于存储实体信息
 
 const post = ref({
@@ -83,7 +87,7 @@ const post = ref({
   author: {
     _id: '',
     username: 'Unknown',
-    avatar: 'https://picsum.photos/100/100' 
+    avatar: 'https://picsum.photos/100/100'
   },
   tags: [],
   viewCount: 0,
@@ -94,6 +98,7 @@ const post = ref({
 
 const token = localStorage.getItem("token");
 const decoded = jwtDecode(token);
+const loading = ref(true)
 
 const currentUser = ref({
   name: `${decoded.first_name}`,
@@ -101,17 +106,23 @@ const currentUser = ref({
   email: `${decoded.email}`
 })
 
-const fetchPostDetial = async function() {
-  const response = await fetch('/api/bluenote/blog/'+route.params.id);
-  const data = await response.json();
-  console.log(data, decoded , data.likes.indexOf(decoded.email))
-  if (response.ok) {
-    // set the post
-    isLiked.value = data.likes.indexOf(decoded.email) !== -1
-    post.value = data;
-    likes.value = data.likes.length;
-  } else {
-    alert(data.message);
+const fetchPostDetial = async function () {
+  try {
+    const response = await fetch('/api/bluenote/blog/' + route.params.id);
+    const data = await response.json();
+    console.log(data, decoded, data.likes.indexOf(decoded.email))
+    if (response.ok) {
+      // set the post
+      isLiked.value = data.likes.indexOf(decoded.email) !== -1
+      post.value = data;
+      likes.value = data.likes.length;
+    } else {
+      alert(data.message);
+    }
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+  } finally {
+    loading.value = false;
   }
 }
 
@@ -130,7 +141,7 @@ const fetchComments = async () => {
 const toggleLike = async () => {
   const email = currentUser.value.email;
   const url = `/api/bluenote/blog/${route.params.id}/like?email=${email}`;
-  const method = isLiked.value? 'DELETE' : 'POST';
+  const method = isLiked.value ? 'DELETE' : 'POST';
   const response = await fetch(url, {
     method: method
   });
@@ -180,7 +191,7 @@ const extractSummary = async () => {
   const data = await response.json();
   console.log(data)
   if (response.ok) {
-    summary.value = data.onlySuccessful; 
+    summary.value = data.onlySuccessful;
     summaryEntities.value = data.onlySuccessful[0].entities;
   } else {
     alert(data.message);
