@@ -1,12 +1,12 @@
 <template>
   <div class="container py-4">
-    <!-- Loading state - added at the top -->
+    <!-- Loading state -->
     <div v-if="loading" class="text-center py-5">
       <div class="spinner-border text-primary"></div>
       <p class="mt-2">Loading posts...</p>
     </div>
 
-    <!-- Rest of your existing template remains unchanged -->
+    <!-- after loading -->
     <div v-else class="row g-4">
       <div v-for="post in posts" :key="post.id" class="col-12 col-md-6 col-lg-4">
         <div class="card h-100" style="cursor: pointer" @click="router.push(`/system/detail/${post._id}`)">

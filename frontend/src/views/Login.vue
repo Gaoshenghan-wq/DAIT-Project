@@ -115,7 +115,6 @@ export default {
   min-height: 400px;
 }
 
-/* 响应式调整 */
 @media (max-width: 768px) {
   .login-container {
     max-width: 100%;

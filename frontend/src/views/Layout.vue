@@ -47,7 +47,7 @@ const handleLogout = () => {
   <!-- Main Container -->
   <div class="container-fluid" style="margin-top: 56px;">
     <div class="row">
-      <!-- Left Sidebar - Hidden on mobile -->
+      <!-- Left Sidebar Hidden on mobile -->
       <div v-if="showSidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
         <div class="position-sticky pt-3">
           <ul class="nav flex-column">
@@ -86,7 +86,7 @@ const handleLogout = () => {
       </main>
     </div>
 
-    <!-- Bottom Navigation - Visible only on mobile -->
+    <!-- Bottom navigation, only can see on mobile size -->
     <nav class="d-md-none fixed-bottom bg-white border-top">
       <div class="row text-center">
         <div class="col">

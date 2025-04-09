@@ -11,7 +11,6 @@ import Swal from 'sweetalert2'
 import '@oruga-ui/theme-bootstrap/dist/bootstrap.css';
 import '@mdi/font/css/materialdesignicons.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-// import 'bootstrap/dist/css/bootstrap.css'
 import "bootstrap"
 
 import VueApexCharts from "vue3-apexcharts";
