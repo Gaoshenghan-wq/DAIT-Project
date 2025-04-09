@@ -49,7 +49,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const loading = ref(false)
 const currentPage = ref(1)
-const itemsPerPage = 10
+const itemsPerPage = 9
 const posts = ref([])
 const totalPages = ref(0)
 

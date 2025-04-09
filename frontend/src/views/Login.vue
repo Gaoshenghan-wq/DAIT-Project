@@ -1,10 +1,10 @@
 <template>
   <div class="login-container">
-    <div class="row g-0">
+    <div class="row g-0 justify-content-center align-items-center vh-100 flex-column flex-md-row">
       <div class="col-md-6">
         <div class="login-image"></div>
       </div>
-      <div class="col-md-6 p-5">
+      <div class="col-md-6 p-5 login-col">
         <h2 class="mb-4 text-center">Login</h2>
         <form @submit.prevent="login">
           <div class="mb-3">
@@ -27,7 +27,7 @@
               required
             />
           </div>
-          <div >
+          <div class="d-flex justify-content-between">
             <button type="submit" class="btn btn-primary btn-lg rounded-pill">
               Login
             </button>
@@ -92,25 +92,20 @@ export default {
 </script>
 
 <style scoped>
-body {
-  background-color: #f4f4f9;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  margin: 0;
-}
 
+.login-col {
+  /* background-color: #fff;
+  /* border-radius: 5px; 
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); */
+}
 .login-container {
-  background-color: #fff;
+  /* background-color: #fff;
   border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); */
   overflow: auto;
-  /* width: 100%; */
-  max-width: 800px;
-  min-width: 800px;
-  /* min-height: 50vh; */
-  margin-left: 15%;
+  max-width: 900px; 
+  width: 90%; 
+  min-width: 300px;
 }
 
 .login-image {
@@ -131,4 +126,6 @@ body {
     min-height: 200px;
   }
 }
-</style>
+
+
+</style>    
